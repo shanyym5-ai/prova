@@ -261,7 +261,13 @@ footer{background:var(--nero)}
 #cursorGlow{position:fixed;left:0;top:0;width:340px;height:340px;margin:-170px 0 0 -170px;border-radius:50%;pointer-events:none;z-index:80;opacity:0;background:radial-gradient(circle,rgba(233,220,195,.14) 0%,rgba(217,196,156,.07) 34%,transparent 68%);mix-blend-mode:screen;transition:opacity .5s ease;will-change:transform;transform:translate3d(-500px,-500px,0)}
 #cursorGlow.on{opacity:1}
 #cursorGlow.boost{background:radial-gradient(circle,rgba(233,220,195,.24) 0%,rgba(217,196,156,.12) 36%,transparent 70%)}
-@media(hover:none),(pointer:coarse){#cursorGlow{display:none}}
+#cursorCore{position:fixed;left:0;top:0;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;pointer-events:none;z-index:81;opacity:0;background:radial-gradient(circle,rgba(255,250,238,.55) 0%,rgba(240,226,199,.28) 26%,rgba(217,196,156,.10) 52%,transparent 72%);mix-blend-mode:screen;transition:opacity .4s ease,width .3s ease,height .3s ease,margin .3s ease;will-change:transform;transform:translate3d(-500px,-500px,0)}
+#cursorCore.on{opacity:1}
+#cursorCore.boost{width:150px;height:150px;margin:-75px 0 0 -75px;background:radial-gradient(circle,rgba(255,250,238,.7) 0%,rgba(240,226,199,.36) 28%,rgba(217,196,156,.14) 54%,transparent 74%)}
+/* alone luminoso intorno alle foto al passaggio del cursore */
+#galleria figure,.own-card,.menu-photo img,.loc-foto img,.ev-foto img,.card{transition:box-shadow .45s ease,border-color .45s ease}
+#galleria figure:hover,.own-card:hover,.menu-photo img:hover,.loc-foto img:hover,.ev-foto img:hover{box-shadow:0 0 0 1px rgba(233,220,195,.55),0 0 34px rgba(217,196,156,.35),0 0 90px rgba(217,196,156,.16)}
+@media(hover:none),(pointer:coarse){#cursorGlow,#cursorCore{display:none}}
 </style>
 </head>
 <body>
@@ -620,21 +626,25 @@ footer{background:var(--nero)}
   if(!matchMedia('(hover: hover) and (pointer: fine)').matches)return;
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const g=document.createElement('div');g.id='cursorGlow';document.body.appendChild(g);
-  let tx=-500,ty=-500,x=-500,y=-500,raf=null,shown=false;
+  const c=document.createElement('div');c.id='cursorCore';document.body.appendChild(c);
+  let tx=-500,ty=-500,x=-500,y=-500,cx=-500,cy=-500,raf=null,shown=false;
   const loop=()=>{
-    x+=(tx-x)*0.12; y+=(ty-y)*0.12;
+    x+=(tx-x)*0.12; y+=(ty-y)*0.12;      // alone ampio: inerzia morbida
+    cx+=(tx-cx)*0.3; cy+=(ty-cy)*0.3;    // nucleo luminoso: segue più da vicino
     g.style.transform='translate3d('+x+'px,'+y+'px,0)';
-    if(Math.abs(tx-x)>.2||Math.abs(ty-y)>.2){raf=requestAnimationFrame(loop);}else{raf=null;}
+    c.style.transform='translate3d('+cx+'px,'+cy+'px,0)';
+    if(Math.abs(tx-x)>.2||Math.abs(ty-y)>.2||Math.abs(tx-cx)>.2||Math.abs(ty-cy)>.2){raf=requestAnimationFrame(loop);}else{raf=null;}
   };
   addEventListener('mousemove',e=>{
     tx=e.clientX;ty=e.clientY;
-    if(!shown){g.classList.add('on');shown=true;}
+    if(!shown){g.classList.add('on');c.classList.add('on');shown=true;}
     if(!raf)raf=requestAnimationFrame(loop);
-    const it=e.target.closest('a,button,.tab,.soc,input,select,textarea,.leaflet-container');
+    const it=e.target.closest('a,button,.tab,.soc,input,select,textarea,.leaflet-container,#galleria figure,.own-card,.menu-photo,.loc-foto,.ev-foto');
     g.classList.toggle('boost',!!it);
+    c.classList.toggle('boost',!!it);
   },{passive:true});
-  document.addEventListener('mouseleave',()=>{g.classList.remove('on');shown=false;});
-  document.addEventListener('mouseenter',()=>{g.classList.add('on');shown=true;});
+  document.addEventListener('mouseleave',()=>{g.classList.remove('on');c.classList.remove('on');shown=false;});
+  document.addEventListener('mouseenter',()=>{g.classList.add('on');c.classList.add('on');shown=true;});
 })();
 </script>
 <script>
